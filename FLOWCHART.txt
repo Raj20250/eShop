@@ -1,0 +1,64 @@
+Flow Chart (Text) - eShop Laravel Project
+
+1. **Visitor enters site**
+   - GET `/` -> Home page (product listing)
+   - GET `/product-detail/{product}` -> Product detail page
+
+2. **Cart interaction**
+   A. Add to Cart (guest or logged-in)
+      - POST `/cart/add` -> CartController@addToCart
+        - Uses session to store cart items for guests
+        - If logged in, may store cart items in database/session
+
+   B. View Cart
+      - GET `/cart` -> CartController@getCart
+      - Protected by auth if inside `auth+client` group
+
+   C. Update / Remove / Clear Cart
+      - POST `/cart/update` -> update quantities
+      - POST `/cart/remove` -> remove item
+      - POST `/cart/clear` -> clear cart
+      - These actions are protected if inside auth group (requires login)
+
+3. **Wishlist (requires login)**
+   - GET `/wishlist` -> show wishlist
+   - POST `/wishlist/add` -> add item to wishlist
+   - POST `/wishlist/remove` -> remove item from wishlist
+
+4. **Client auth flow**
+   - Guest user can register: GET `/register` / POST `/register`
+   - Login: GET `/login` / POST `/login`
+   - After login, client can access protected routes (dashboard, orders, wishlist, checkout)
+
+5. **Checkout & Orders**
+   - GET `/checkout` -> checkout page (client-only)
+   - POST `/checkout/place-order` -> place order
+   - GET `/order/success` -> order confirmation
+   - GET `/order-history` -> order list
+   - GET `/order-detail/{id}` -> order detail
+
+6. **Admin flow**
+   - Admin login: GET `/admin/login` / POST `/admin/login`
+   - Admin routes group: prefixed `/admin`, middleware `auth:admin` + `admin`
+     - `/admin/dashboard`
+     - `/admin/products` (resource controller)
+     - `/admin/categories` (resource controller)
+     - `/admin/orders` (resource controller)
+     - `/admin/users` (resource controller)
+     - `/admin/queries` (resource controller)
+
+7. **Back-end setup**
+   - `config/auth.php` defines guards/providers:
+     - `web` guard -> provider `users` -> model `App\Models\Auth\Client\User`
+     - `admin` guard -> provider `admins` -> model `App\Models\Auth\Admin\AdminUser`
+
+8. **Middleware checks**
+   - `IsClient` checks `Auth::user()->role === 'client'` (client guard)
+   - `IsAdmin` checks `Auth::guard('admin')->user()->role === 'admin'`
+
+9. **API endpoint**
+   - GET `/api/products/{id}` -> `CartController@getProduct` (used by AJAX)
+
+---
+
+This text flow chart can be converted into a visual diagram by placing nodes for each step and connecting them with arrows according to the numbered sequence.
